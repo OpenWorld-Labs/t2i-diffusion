@@ -12,10 +12,10 @@ import einops as eo
 
 from .base import BaseTrainer
 
-from ..utils import freeze, Timer
+from ..utils import freeze, Timer, find_unused_params
 from ..schedulers import get_scheduler_cls
 from ..models import get_model_cls
-from ..nn.lpips import VGGLPIPS
+from ..sampling import get_sampler_cls
 from ..data import get_loader
 from ..utils.logging import LogHelper, to_wandb
 from ..muon import init_muon
@@ -78,10 +78,16 @@ class RFTTrainer(BaseTrainer):
 
         self.ema = EMA(
             self.model,
-            beta = 0.9999,
+            beta = 0.999,
             update_after_step = 0,
             update_every = 1
         )
+
+        def get_ema_core():
+            if self.world_size > 1:
+                return self.ema.ema_model.module.core
+            else:
+                return self.ema.ema_model.core
 
         # Set up optimizer and scheduler
         if self.train_cfg.opt.lower() == "muon":
@@ -107,6 +113,7 @@ class RFTTrainer(BaseTrainer):
         
         # Dataset setup
         loader = get_loader(self.train_cfg.data_id, self.train_cfg.batch_size)
+        sampler = get_sampler_cls(self.train_cfg.sampler_id)()
 
         local_step = 0
         for _ in range(self.train_cfg.epochs):
@@ -117,13 +124,15 @@ class RFTTrainer(BaseTrainer):
                     loss = self.model(batch) / accum_steps
 
                 self.scaler.scale(loss).backward()
+
                 metrics.log('diffusion_loss', loss)
 
                 local_step += 1
                 if local_step % accum_steps == 0:
                     # Updates
-                    self.scaler.unscale_(self.opt)
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+                    if self.train_cfg.opt.lower() != "muon":
+                        self.scaler.unscale_(self.opt)
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
                     self.scaler.step(self.opt)
                     self.opt.zero_grad()
@@ -142,8 +151,10 @@ class RFTTrainer(BaseTrainer):
                         timer.reset()
 
                         # Sampling commented out for now
-                        #if self.total_step_counter % self.train_cfg.sample_interval == 0:
-                        #    wandb_dict['samples'] = ...
+                        if self.total_step_counter % self.train_cfg.sample_interval == 0:
+                            with ctx, torch.no_grad():
+                                samples = sampler(get_ema_core(), batch)
+                            wandb_dict['samples'] = to_wandb(samples)
 
                         if self.rank == 0:
                             wandb.log(wandb_dict)

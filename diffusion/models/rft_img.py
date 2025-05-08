@@ -4,29 +4,29 @@ Simplified rectified flow transformer
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 from ..nn.attn import (
-    StackedTransformer,
+    DiT,
     PatchProjIn,
     PatchProjOut
 )
-from .nn.embeddings import TimestepEmbedding
+from ..nn.embeddings import TimestepEmbedding, LearnedPosEnc
 
 import einops as eo
 
 class RFTCore(nn.Module):
-    def __init__(config : 'TransformerConfig'):
+    def __init__(self, config : 'TransformerConfig'):
         super().__init__()
 
         self.proj_in = PatchProjIn(config.d_model, config.channels, config.patch_size)
-        self.blocks = StackedTransformer(config)
+        self.blocks = DiT(config)
         self.proj_out = PatchProjOut(config.sample_size, config.d_model, config.channels, config.patch_size)
 
         self.t_embed = TimestepEmbedding(config.d_model)
 
     def forward(self, x, t):
         cond = self.t_embed(t)
-
         x = self.proj_in(x)
         x = self.blocks(x, cond)
         x = self.proj_out(x, cond)
@@ -42,7 +42,7 @@ class RFT(nn.Module):
     def forward(self, x):
         b,c,h,w = x.shape
         with torch.no_grad():
-            ts = torch.rand(b,device=x.device,dtype=x.dtype).sigmoid()
+            ts = torch.randn(b,device=x.device,dtype=x.dtype).sigmoid()
             
             ts_exp = eo.repeat(ts, 'b -> b c h w', c=c,h=h,w=w)
             z = torch.randn_like(x)

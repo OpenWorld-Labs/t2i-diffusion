@@ -23,6 +23,7 @@ class Attn(nn.Module):
         self.out = nn.Linear(config.d_model, config.d_model)
 
         self.qk_norm = QKNorm(config.d_model // config.n_heads)
+        self.rope = ImageRoPE(config)
 
         mimetic_init(self.qkv, self.out, config)
 
@@ -30,6 +31,7 @@ class Attn(nn.Module):
 
         q,k,v = eo.rearrange(self.qkv(x), 'b n (three h d) -> three b h n d', three = 3, h = self.n_heads)
         q,k = self.qk_norm(q,k)
+        q,k = self.rope(q,k)
         x = F.scaled_dot_product_attention(q,k,v)
         x = eo.rearrange(x, 'b h n d -> b n (h d)')
         x = self.out(x)
@@ -62,7 +64,7 @@ class DiTBlock(nn.Module):
         res2 = x.clone()
         x = self.adaln2(x, cond)
         x = self.mlp(x)
-        self.gate2(x, cond)
+        x = self.gate2(x, cond)
         x = res2 + x
 
         return x

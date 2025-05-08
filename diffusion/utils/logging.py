@@ -53,9 +53,8 @@ class LogHelper:
         self.data = {}
         return final
 
-def to_wandb(x1, x2, gather = False):
-    # x1, x2 both is [b,c,h,w]
-    x = torch.cat([x1,x2], dim = -1) # side to side
+def to_wandb(x, gather = False):
+    # x is [b,c,h,w]
     x = x.clamp(-1, 1)
 
     if dist.is_initialized() and gather:

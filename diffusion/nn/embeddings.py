@@ -5,15 +5,38 @@ import torch.nn.functional as F
 import einops as eo
 from .mlp import MLPCustom
 
+from rotary_embedding_torch import (
+    RotaryEmbedding,
+    apply_rotary_emb
+)
+import einops as eo
+
 class ImageRoPE(nn.Module):
     def __init__(self, config : 'TransformerConfig'):
         super().__init__()
 
-        pass
+        dim_head = config.d_model // config.n_heads
+        self.pos_emb = RotaryEmbedding(
+            dim = dim_head//4,  # or // 2 depending on your needs
+            freqs_for = 'pixel',
+            max_freq = 256
+        )
+
+        n_patches = config.sample_size // config.patch_size
+        self.rearrange_in = lambda x: eo.rearrange(x, 'b h (n_y n_x) d -> b h n_y n_x d', n_y = n_patches)
+        self.rearrange_out = lambda x: eo.rearrange(x, 'b h n_y n_x d -> b h (n_y n_x) d')
+        self.get_freqs = lambda: self.pos_emb.get_axial_freqs(n_patches, n_patches)
 
     def forward(self, q, k):
         # q k both [b,h,n,d]
-        pass
+        q = self.rearrange_in(q)
+        k = self.rearrange_in(k)
+        freqs = self.get_freqs()
+        q = apply_rotary_emb(freqs.float(), q.float()).to(q.dtype)
+        k = apply_rotary_emb(freqs.float(), k.float()).to(k.dtype)
+        q = self.rearrange_out(q)
+        k = self.rearrange_out(k)
+        return q, k
 
 class LearnedPosEnc(nn.Module):
     def __init__(self, n_seq, dim):
@@ -64,9 +87,23 @@ class TimestepEmbedding(nn.Module):
         super().__init__()
 
         self.sincos = SinCosEmbed(512, theta=300, mult = 1000)
-        self.mlp = MLP(512, dim * 4, dim)
+        self.mlp = MLPCustom(512, dim * 4, dim)
     
     def forward(self, x):
         x = self.sincos(x)
         x = self.mlp(x)
         return x
+
+class ConditionEmbedding(nn.Module):
+    def __init__(self, n_classes, dim):
+        super().__init__()
+        
+        self.embedding = nn.Embedding(n_classes, dim)
+        self.mlp = MLPCustom(dim, dim * 4, dim)
+    
+    def forward(self, x):
+        # x is long tensor of [b,]
+        x = self.embedding(x)
+        x = self.mlp(x)
+        return x
+

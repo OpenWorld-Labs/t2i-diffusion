@@ -15,6 +15,8 @@ class TransformerConfig:
     channels : int = 3
     sample_size : int = 512
 
+    cfg_prob : float = 0.1
+
 @dataclass
 class TrainingConfig:
     trainer_id : str = None

@@ -20,6 +20,15 @@ class RMSNorm(nn.Module):
 
         return x * rms * gain
 
+class L2Norm(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        b,h,n,d = x.shape
+        x = F.normalize(x, dim = -1)
+        return x
+
 class QKNorm(nn.Module):
     def __init__(self, dim):
         super().__init__()
