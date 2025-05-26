@@ -49,10 +49,11 @@ class RFTTrainer(BaseTrainer):
             'model' : self.model.state_dict(),
             'ema' : self.ema.state_dict(),
             'opt' : self.opt.state_dict(),
-            'scheduler' : self.scheduler.state_dict(),
             'scaler' : self.scaler.state_dict(),
             'steps': self.total_step_counter
         }
+        if self.scheduler is not None:
+            save_dict['scheduler'] = self.scheduler.state_dict()
         super().save(save_dict)
     
     def load(self):
@@ -64,7 +65,8 @@ class RFTTrainer(BaseTrainer):
         self.model.load_state_dict(save_dict['model'])
         self.ema.load_state_dict(save_dict['ema'])
         self.opt.load_state_dict(save_dict['opt'])
-        self.scheduler.load_state_dict(save_dict['scheduler'])
+        if self.scheduler is not None and 'scheduler' in save_dict:
+            self.scheduler.load_state_dict(save_dict['scheduler'])
         self.scaler.load_state_dict(save_dict['scaler'])
         self.total_step_counter = save_dict['steps']
 
