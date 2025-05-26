@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 class SimpleSampler:
     @torch.no_grad()
-    def __call__(self, model, dummy_batch, sampling_steps = 64):
+    def __call__(self, model, dummy_batch, sampling_steps = 64, decode_fn = None, scale = 1):
         x = torch.randn_like(dummy_batch)
         ts = torch.ones(x.shape[0], device=x.device,dtype=x.dtype)
         dt = 1. / sampling_steps
@@ -14,6 +14,9 @@ class SimpleSampler:
             x = x - pred*dt
             ts = ts - dt
 
+        if decode_fn is not None:
+            x = x * scale
+            x = decode_fn(x)
         return x
 
 if __name__ == "__main__":
