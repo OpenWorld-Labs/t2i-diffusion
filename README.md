@@ -6,8 +6,23 @@ Diffusion experiments
 * Blacwell FP4, for post-training quantization (PTQ), and quantization-aware training (QAT).
 
 ## Commands:
+Container for development:
 ```
-docker build -t t2i-diffusion .
+docker build --build-arg DEV_MODE=true -t t2i-diffusion:dev .
+
+docker run --gpus all -it \
+  -v "$PWD":/app \
+  -v /home/$USER/data:/app/data \
+  -v /home/$USER/logs:/app/logs \
+  --workdir /app \
+  --name t2i-diffusion \
+  t2i-diffusion:dev
+```
+
+Container for running the model,
+```
+docker build -t t2i-diffusion:latest .
+
 docker run --gpus all -it \
   -v "$PWD":/app \
   -v /home/$USER/data:/app/data \
@@ -20,7 +35,10 @@ docker run --gpus all -it \
 ## Dev Notes:
 Install dev tools from requirements-devtools.txt.
 
-Run pre-commit hook: `pre-commit run --all-files`.
+Run pre-commit hook:
+```
+pre-commit run --all-files
+```
 
 Torch tensor type checking docs: https://docs.kidger.site/jaxtyping/api/array/
 
