@@ -3,7 +3,7 @@ Diffusion experiments
 
 ## Notes:
 * FP4 inference on Blackwell, and FP8 on Hopper.
-* Blacwell FP4, for post-training quantization (PTQ), and quantization-aware training (QAT).
+* Blackwell FP4, for post-training quantization (PTQ), and quantization-aware training (QAT).
 
 ## Commands:
 Container for development:
@@ -12,9 +12,8 @@ docker build --build-arg DEV_MODE=true -t t2i-diffusion:dev .
 
 docker run --gpus all -it \
   -v "$PWD":/app \
-  -v /home/$USER/data:/app/data \
-  -v /home/$USER/logs:/app/logs \
-  --workdir /app \
+  -v data:/app/data \
+  -v logs:/app/logs \
   --name t2i-diffusion \
   t2i-diffusion:dev
 ```
@@ -25,9 +24,8 @@ docker build -t t2i-diffusion:latest .
 
 docker run --gpus all -it \
   -v "$PWD":/app \
-  -v /home/$USER/data:/app/data \
-  -v /home/$USER/logs:/app/logs \
-  --workdir /app \
+  -v data:/app/data \
+  -v logs:/app/logs \
   --name t2i-diffusion \
   t2i-diffusion:latest
 ```
