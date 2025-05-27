@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Union
 import yaml
 from omegaconf import OmegaConf
 
@@ -16,6 +16,8 @@ class TransformerConfig:
     sample_size : int = 512
 
     cfg_prob : float = 0.1
+    patch : bool = True
+    uvit: bool = False
 
 @dataclass
 class TrainingConfig:
@@ -45,6 +47,10 @@ class TrainingConfig:
     sample_interval : int = 1000
     save_interval : int = 1000
 
+    # vae 
+    vae_cfg_path_or_paths : Optional[Union[List[str],str]] = None
+    vae_ckpt_path_or_paths : Optional[Union[List[str],str]] = None
+    vae_scale : float = 0.13
 @dataclass
 class WANDBConfig:
     name : str = None

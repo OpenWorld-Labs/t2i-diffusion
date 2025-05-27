@@ -49,6 +49,8 @@ def versatile_load(path):
         return ckpt
     else:
         ckpt = {k[len(prefix):] : v for (k,v) in ckpt.items() if k.startswith(prefix)}
+    
+    return ckpt
 
 def find_unused_params(model):
     for name, param in model.named_parameters():
