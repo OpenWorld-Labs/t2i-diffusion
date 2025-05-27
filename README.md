@@ -22,40 +22,19 @@ Install dev tools from requirements-devtools.txt.
 
 Run pre-commit hook: `pre-commit run --all-files`.
 
-Example torch tensor type checking, which can also be merge with typing module of Python:
+Torch tensor type checking docs: https://docs.kidger.site/jaxtyping/api/array/
 
 ```
-from torch import Tensor
-from torchtyping import TensorType, patch_typeguard
-from typeguard import typechecked
-
-# Enable type checking
-patch_typeguard()
-
-# Define tensor shapes using torchtyping
-# Format: TensorType[<batch_dims>, <feature_dims>]
-# Common dimensions:
-# B: batch size
-# C: channels
-# H: height
-# W: width
-# D: depth
-# L: sequence length
-# E: embedding dimension
+import torch
+from jaxtyping import Float, Bool, jaxtyped
+import typeguard
 
 # for runtime type checking
-@typechecked
+@jaxtyped(typechecker=typeguard.typechecked)
 def transformer_forward(
-    x: TensorType["B", "L", "E", float],  # Input sequence
-    mask: TensorType["B", "L", bool]  # Attention mask
-) -> TensorType["B", "L", "E", float]:
+    x: Float[torch.Tensor, "batch seq 128"],
+    mask: Bool[torch.Tensor, "seq 128"]
+) -> Float[torch.Tensor, "batch seq 128"]:
     # Your code here
-    return x
-
-# For variable dimensions, use ... (ellipsis)
-@typechecked
-def flexible_batch(
-    x: TensorType[..., "C", "H", "W", float]  # Any number of batch dimensions
-) -> TensorType[..., "C", "H", "W", float]:
     return x
 ```

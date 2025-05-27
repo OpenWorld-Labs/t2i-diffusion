@@ -17,14 +17,14 @@ repos:
     rev: 5.13.2
     hooks:
     -   id: isort
-        args: ["--profile", "black", "--multi_line_output", "3"]
+        args: ["--profile", "black"]
 
 -   repo: local
     hooks:
-    -   id: typeguard
-        name: typeguard
-        entry: python -m typeguard
+    -   id: pytest
+        name: pytest
+        entry: pytest
         language: system
         pass_filenames: false
         types: [python]
-        args: [--ignore-missing-imports]
+        args: [--jaxtyping-packages=diffusion.models,diffusion.nn,typeguard.typechecked]

@@ -4,3 +4,6 @@ multi_line_output = 3  # vertical hanging intent
 
 [tool.black]
 target-version = ['py39','py310','py311','py312']
+
+[tool.pytest.ini_options]
+addopts = "--jaxtyping-packages=diffusion.models,diffusion.nn,typeguard.typechecked"
