@@ -1,0 +1,30 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    hooks:
+    -   id: check-yaml
+    -   id: check-json
+    -   id: check-xml
+    -   id: pretty-format-json
+        args: ["--autofix", "--no-sort-keys"]
+
+-   repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+    -   id: black
+        language_version: python3
+
+-   repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+    -   id: isort
+        args: ["--profile", "black", "--multi_line_output", "3"]
+
+-   repo: local
+    hooks:
+    -   id: typeguard
+        name: typeguard
+        entry: python -m typeguard
+        language: system
+        pass_filenames: false
+        types: [python]
+        args: [--ignore-missing-imports]

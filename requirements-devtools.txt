@@ -1,0 +1,5 @@
+pre-commit
+black==24.2.0  # code formatter, and style standard for the repo
+isort==5.13.2  # Import sorting
+torchtyping  # Type hints for PyTorch
+typeguard  # type checking at runtime, for tensors that are only known at runtime
