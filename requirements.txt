@@ -1,0 +1,16 @@
+torchvision
+torchaudio
+torchao
+
+datasets
+pillow
+einops
+rotary-embedding-torch
+ema-pytorch
+
+numpy
+matplotlib
+scipy
+
+omegaconf
+wandb
