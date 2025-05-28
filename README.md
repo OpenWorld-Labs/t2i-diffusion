@@ -40,7 +40,7 @@ docker run --gpus all -it \
 ```
 
 ## Dev Notes:
-Install dev tools from requirements-devtools.txt.
+Inside the development docker container:
 
 Run pre-commit hook:
 ```

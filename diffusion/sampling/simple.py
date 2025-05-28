@@ -1,17 +1,18 @@
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
+
 
 class SimpleSampler:
     @torch.no_grad()
-    def __call__(self, model, dummy_batch, sampling_steps = 64, decode_fn = None, scale = 1):
+    def __call__(self, model, dummy_batch, sampling_steps=64, decode_fn=None, scale=1):
         x = torch.randn_like(dummy_batch)
-        ts = torch.ones(x.shape[0], device=x.device,dtype=x.dtype)
-        dt = 1. / sampling_steps
+        ts = torch.ones(x.shape[0], device=x.device, dtype=x.dtype)
+        dt = 1.0 / sampling_steps
 
         for _ in range(sampling_steps):
             pred = model(x, ts)
-            x = x - pred*dt
+            x = x - pred * dt
             ts = ts - dt
 
         if decode_fn is not None:
@@ -19,8 +20,9 @@ class SimpleSampler:
             x = decode_fn(x)
         return x
 
+
 if __name__ == "__main__":
-    model = lambda x,t: x
+    model = lambda x, t: x
 
     sampler = SimpleSampler()
     x = sampler(model, torch.randn(4, 3, 64, 64), 4)

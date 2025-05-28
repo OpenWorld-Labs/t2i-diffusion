@@ -1,20 +1,19 @@
-import torch
-from torch import nn
-import torch.nn.functional as F
-
-from .normalization import LayerNorm, RMSNorm, QKNorm
-from .embeddings import ImageRoPE
-from .mlp import MLP
-
 import einops as eo
+import torch
+import torch.nn.functional as F
+from torch import nn
+
+from .embeddings import ImageRoPE
 from .mimetic import mimetic_init
-
+from .mlp import MLP
 from .modulation import AdaLN, Gate
+from .normalization import LayerNorm, QKNorm, RMSNorm
 
-torch.backends.cuda.enable_flash_sdp(enabled = True)
+torch.backends.cuda.enable_flash_sdp(enabled=True)
+
 
 class Attn(nn.Module):
-    def __init__(self, config : 'TransformerConfig'):
+    def __init__(self, config: "TransformerConfig"):
         super().__init__()
 
         self.n_heads = config.n_heads
@@ -23,19 +22,22 @@ class Attn(nn.Module):
         self.out = nn.Linear(config.d_model, config.d_model)
 
         self.qk_norm = QKNorm(config.d_model // config.n_heads)
-        #self.rope = ImageRoPE(config)
+        # self.rope = ImageRoPE(config)
 
         mimetic_init(self.qkv, self.out, config)
 
     def forward(self, x):
 
-        q,k,v = eo.rearrange(self.qkv(x), 'b n (three h d) -> three b h n d', three = 3, h = self.n_heads)
-        q,k = self.qk_norm(q,k)
-        #q,k = self.rope(q,k)
-        x = F.scaled_dot_product_attention(q,k,v)
-        x = eo.rearrange(x, 'b h n d -> b n (h d)')
+        q, k, v = eo.rearrange(
+            self.qkv(x), "b n (three h d) -> three b h n d", three=3, h=self.n_heads
+        )
+        q, k = self.qk_norm(q, k)
+        # q,k = self.rope(q,k)
+        x = F.scaled_dot_product_attention(q, k, v)
+        x = eo.rearrange(x, "b h n d -> b n (h d)")
         x = self.out(x)
         return x
+
 
 class DiTBlock(nn.Module):
     def __init__(self, config):
@@ -60,7 +62,7 @@ class DiTBlock(nn.Module):
         x = self.attn(x)
         x = self.gate1(x, cond)
         x = res1 + x
-        
+
         res2 = x.clone()
         x = self.adaln2(x, cond)
         x = self.mlp(x)
@@ -68,6 +70,7 @@ class DiTBlock(nn.Module):
         x = res2 + x
 
         return x
+
 
 class DiT(nn.Module):
     def __init__(self, config):
@@ -83,6 +86,7 @@ class DiT(nn.Module):
             x = block(x, cond)
 
         return x
+
 
 class UViT(nn.Module):
     def __init__(self, config):
@@ -119,57 +123,69 @@ class UViT(nn.Module):
             # Get corresponding early block output
             early_idx = n_blocks - 1 - i
             early_feat = early_features[early_idx]
-            
+
             # Concatenate early and current features
             skip_idx = i - (mid_idx + 1)
             x = torch.cat([x, early_feat], dim=-1)
             x = self.skip_projs[skip_idx](x)
-            
+
             x = self.blocks[i](x, cond)
 
         return x
 
+
 # === VIT Specific Layers ===
 
+
 class PatchProjIn(nn.Module):
-    def __init__(self, d_model, channels = 3, patch_size=1):
+    def __init__(self, d_model, channels=3, patch_size=1):
         super().__init__()
 
-        self.proj_in = nn.Conv2d(channels, d_model, patch_size, patch_size, 0, bias=False)
-    
+        self.proj_in = nn.Conv2d(
+            channels, d_model, patch_size, patch_size, 0, bias=False
+        )
+
     def forward(self, x):
-        b,c,h,w = x.shape
+        b, c, h, w = x.shape
         x = self.proj_in(x)
-        x = eo.rearrange(x, 'b c h w -> b (h w) c')
+        x = eo.rearrange(x, "b c h w -> b (h w) c")
         return x
 
+
 class PatchProjOut(nn.Module):
-    def __init__(self, sample_size, d_model, channels = 3, patch_size=1):
+    def __init__(self, sample_size, d_model, channels=3, patch_size=1):
         super().__init__()
 
         self.norm = AdaLN(d_model)
         self.act = nn.SiLU()
-        self.proj = nn.Linear(d_model, channels*patch_size*patch_size)
+        self.proj = nn.Linear(d_model, channels * patch_size * patch_size)
         self.sample_size = sample_size
         self.patch_size = patch_size
 
-        self.n_patches = self.sample_size//self.patch_size
+        self.n_patches = self.sample_size // self.patch_size
 
     def forward(self, x, cond):
         x = self.norm(x, cond)
         x = self.act(x)
         x = self.proj(x)
-        x = eo.rearrange(x, 'b (h w) (ph pw c) -> b c (h ph) (w pw)', h = self.n_patches, ph = self.patch_size, pw = self.patch_size)
+        x = eo.rearrange(
+            x,
+            "b (h w) (ph pw c) -> b c (h ph) (w pw)",
+            h=self.n_patches,
+            ph=self.patch_size,
+            pw=self.patch_size,
+        )
 
         return x
 
+
 class ProjOut(nn.Module):
-    def __init__(self, d_model, channels = 3):
+    def __init__(self, d_model, channels=3):
         super().__init__()
 
         self.norm = AdaLN(d_model)
         self.act = nn.SiLU()
-        self.proj = nn.Linear(d_model, channels, bias = False)
+        self.proj = nn.Linear(d_model, channels, bias=False)
 
     def forward(self, x, cond):
         x = self.norm(x, cond)
@@ -178,9 +194,10 @@ class ProjOut(nn.Module):
 
         return x
 
+
 if __name__ == "__main__":
     layer = PatchProjOut(64, 384, 3, 4).cuda().bfloat16()
-    x = torch.randn(1,256,384).cuda().bfloat16()
+    x = torch.randn(1, 256, 384).cuda().bfloat16()
 
     with torch.no_grad():
         z = layer(x)

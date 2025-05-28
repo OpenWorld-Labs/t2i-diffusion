@@ -28,4 +28,3 @@ repos:
         language: system
         pass_filenames: false
         types: [python]
-        args: [--jaxtyping-packages=diffusion.models,diffusion.nn,typeguard.typechecked]
