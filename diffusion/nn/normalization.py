@@ -1,4 +1,3 @@
-import einops as eo
 import torch
 import torch.nn.functional as F
 from torch import nn

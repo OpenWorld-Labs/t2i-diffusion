@@ -1,5 +1,3 @@
-import os
-
 import torch
 import torch.distributed as dist
 from torch import Tensor
@@ -172,9 +170,9 @@ class CombinedOptimizer(Optimizer):
         # Check that all adamw_keys correspond to actual parameters
         model_param_names = [n for n, _ in model.named_parameters()]
         for key in adamw_keys:
-            assert any(
-                key in name for name in model_param_names
-            ), f"AdamW key '{key}' not found in model parameters"
+            assert any(key in name for name in model_param_names), (
+                f"AdamW key '{key}' not found in model parameters"
+            )
 
         # Initialize sub-optimizers
         self.adamw = AdamW(

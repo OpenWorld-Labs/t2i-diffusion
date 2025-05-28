@@ -24,7 +24,7 @@ class Timer:
 
 def versatile_load(path):
     ckpt = torch.load(path, map_location="cpu", weights_only=False)
-    if not "ema" in ckpt and not "model" in ckpt:
+    if "ema" not in ckpt and "model" not in ckpt:
         return ckpt
     elif "ema" in ckpt:
         ckpt = ckpt["ema"]

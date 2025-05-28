@@ -1,9 +1,36 @@
-[tool.isort]
-profile = 'black'
-multi_line_output = 3  # vertical hanging intent
+[project]
+name = "owl-t2i-diffusion"
+version = "0.1.0"
+description = "Text to Image Diffusion from Open World Labs"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torchao",
+    "datasets",
+    "pillow",
+    "einops",
+    "rotary-embedding-torch",
+    "ema-pytorch",
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "omegaconf",
+    "wandb",
+]
 
-[tool.black]
-target-version = ['py39','py310','py311','py312']
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "ruff",
+    "basedpyright",
+    "pytest",
+    "jaxtyping",
+    "typeguard>=2.0.0,<3.0.0",
+]
+
+[tool.basedpyright]
+include = ["diffusion"]
+typeCheckingMode = "basic"
 
 [tool.pytest.ini_options]
 addopts = "--jaxtyping-packages=diffusion,typeguard.typechecked"

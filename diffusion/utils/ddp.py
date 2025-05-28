@@ -1,6 +1,5 @@
 import os
 
-import torch
 import torch.distributed as dist
 
 
@@ -13,7 +12,7 @@ def setup(force=False):
             world_size = dist.get_world_size()
 
             return global_rank, local_rank, world_size
-        except:
+        except Exception:
             return 0, 0, 1
     else:
         dist.init_process_group(backend="nccl")

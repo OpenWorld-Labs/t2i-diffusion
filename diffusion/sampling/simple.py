@@ -1,6 +1,4 @@
 import torch
-import torch.nn.functional as F
-from torch import nn
 
 
 class SimpleSampler:
@@ -21,9 +19,11 @@ class SimpleSampler:
         return x
 
 
-if __name__ == "__main__":
-    model = lambda x, t: x
+def model(x, t):
+    return x
 
+
+if __name__ == "__main__":
     sampler = SimpleSampler()
     x = sampler(model, torch.randn(4, 3, 64, 64), 4)
     print(x.shape)

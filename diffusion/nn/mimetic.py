@@ -1,5 +1,4 @@
 import torch
-import torch.nn.functional as F
 from torch import nn
 
 
@@ -33,7 +32,7 @@ def get_ortho_like(dim, heads, alpha, beta, sign=1, dist="uniform"):
     return L, R
 
 
-def mimetic_init(qkv: nn.Linear, out: nn.Linear, config: "TransformerConfig"):
+def mimetic_init(qkv: nn.Linear, out: nn.Linear, config):
     dim = config.d_model
     head_dim = config.d_model // config.n_heads
 

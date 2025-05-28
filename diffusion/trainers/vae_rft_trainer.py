@@ -5,10 +5,7 @@ Same as RFT trainer but with a VAE
 import sys
 
 sys.path.append("./owl-vaes/")
-import einops as eo
 import torch
-import torch.distributed as dist
-import torch.nn.functional as F
 import wandb
 from ema_pytorch import EMA
 from owl_vaes.configs import Config as VAEConfig
@@ -20,7 +17,7 @@ from ..models import get_model_cls
 from ..muon import init_muon
 from ..sampling import get_sampler_cls
 from ..schedulers import get_scheduler_cls
-from ..utils import Timer, find_unused_params, freeze
+from ..utils import Timer
 from ..utils.logging import LogHelper, to_wandb
 from .base import BaseTrainer
 

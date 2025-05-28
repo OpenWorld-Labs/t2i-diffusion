@@ -1,4 +1,5 @@
 FROM pytorch/pytorch:2.7.0-cuda12.8-cudnn9-runtime
+COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -20,25 +21,23 @@ RUN apt update && \
 
 WORKDIR /app
 
-COPY requirements.txt .
-COPY requirements-devtools.txt .
+COPY pyproject.toml .
 
 RUN conda init bash
 
 RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && \
     conda activate base && \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt"
+    uv pip install ."
 
 ARG DEV_MODE=false
-RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && \
+RUN if [ "$DEV_MODE" = "true" ] ; then \
+    /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && \
     conda activate base && \
-    if [ \"$DEV_MODE\" = \"true\" ] ; then pip install --no-cache-dir -r requirements-devtools.txt ; fi"
+    uv pip install -e '.[dev]'" ; \
+    fi
 
-# Set ownership of /app to the user
 RUN chown -R user:user /app
 
-# Switch to non-root user
 USER user
 
 CMD ["/bin/bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate base && /bin/bash"]

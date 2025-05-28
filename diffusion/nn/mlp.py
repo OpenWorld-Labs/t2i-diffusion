@@ -1,4 +1,3 @@
-import torch
 import torch.nn.functional as F
 from torch import nn
 
@@ -30,7 +29,7 @@ class MLPCustom(nn.Module):
 
 
 class MLP(MLPCustom):
-    def __init__(self, config: "TransformerConfig"):
+    def __init__(self, config):
         super().__init__(config.d_model, config.d_model * 4, config.d_model)
 
     def forward(self, x):

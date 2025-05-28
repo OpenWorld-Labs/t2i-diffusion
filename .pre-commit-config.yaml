@@ -8,17 +8,20 @@ repos:
     -   id: pretty-format-json
         args: ["--autofix", "--no-sort-keys"]
 
--   repo: https://github.com/psf/black
-    rev: 24.2.0
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.10
     hooks:
-    -   id: black
-        language_version: python3
+    -   id: ruff
+        types_or: [ python, pyi ]
+        args: [ --fix ]
+    -   id: ruff-format
+        types_or: [ python, pyi ]
 
--   repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-    -   id: isort
-        args: ["--profile", "black"]
+# commented for now, too many type errors and baseline file is not working.
+#-   repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
+#    rev: v1.13.0
+#    hooks:
+#    -   id: basedpyright
 
 -   repo: local
     hooks:

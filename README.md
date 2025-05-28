@@ -6,23 +6,6 @@ Diffusion experiments
 * Blackwell FP4, for post-training quantization (PTQ), and quantization-aware training (QAT).
 
 ## Commands:
-Container for development:
-```
-docker build \
-  --build-arg DEV_MODE=true \
-  --build-arg USER_ID=$(id -u) \
-  --build-arg GROUP_ID=$(id -g) \
-  -t t2i-diffusion:dev .
-
-docker run --gpus all -it \
-  -v "$PWD":/app \
-  -v data:/app/data \
-  -v logs:/app/logs \
-  -v ~/.ssh:/home/user/.ssh \
-  --name t2i-diffusion \
-  t2i-diffusion:dev
-```
-
 Container for running the model,
 ```
 docker build \
@@ -40,6 +23,23 @@ docker run --gpus all -it \
 ```
 
 ## Dev Notes:
+Container for development:
+```
+docker build \
+  --build-arg DEV_MODE=true \
+  --build-arg USER_ID=$(id -u) \
+  --build-arg GROUP_ID=$(id -g) \
+  -t t2i-diffusion:dev .
+
+docker run --gpus all -it \
+  -v "$PWD":/app \
+  -v data:/app/data \
+  -v logs:/app/logs \
+  -v ~/.ssh:/home/user/.ssh \
+  --name t2i-diffusion \
+  t2i-diffusion:dev
+```
+
 Inside the development docker container:
 
 Run pre-commit hook:

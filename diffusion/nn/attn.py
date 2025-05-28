@@ -3,17 +3,16 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from .embeddings import ImageRoPE
 from .mimetic import mimetic_init
 from .mlp import MLP
 from .modulation import AdaLN, Gate
-from .normalization import LayerNorm, QKNorm, RMSNorm
+from .normalization import LayerNorm, QKNorm
 
 torch.backends.cuda.enable_flash_sdp(enabled=True)
 
 
 class Attn(nn.Module):
-    def __init__(self, config: "TransformerConfig"):
+    def __init__(self, config):
         super().__init__()
 
         self.n_heads = config.n_heads
@@ -27,7 +26,6 @@ class Attn(nn.Module):
         mimetic_init(self.qkv, self.out, config)
 
     def forward(self, x):
-
         q, k, v = eo.rearrange(
             self.qkv(x), "b n (three h d) -> three b h n d", three=3, h=self.n_heads
         )

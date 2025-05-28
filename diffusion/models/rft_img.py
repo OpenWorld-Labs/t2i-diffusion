@@ -12,7 +12,7 @@ from ..nn.embeddings import LearnedPosEnc, TimestepEmbedding
 
 
 class RFTCore(nn.Module):
-    def __init__(self, config: "TransformerConfig"):
+    def __init__(self, config):
         super().__init__()
 
         self.proj_in = (

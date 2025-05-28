@@ -1,6 +1,5 @@
 import einops as eo
 import torch
-import torch.nn.functional as F
 from rotary_embedding_torch import RotaryEmbedding, apply_rotary_emb
 from torch import nn
 
@@ -8,7 +7,7 @@ from .mlp import MLPCustom
 
 
 class ImageRoPE(nn.Module):
-    def __init__(self, config: "TransformerConfig"):
+    def __init__(self, config):
         super().__init__()
 
         dim_head = config.d_model // config.n_heads
