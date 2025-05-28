@@ -3,19 +3,18 @@ name = "owl-t2i-diffusion"
 version = "0.1.0"
 description = "Text to Image Diffusion from Open World Labs"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "==3.11.12"
 dependencies = [
-    "torchao",
-    "datasets",
-    "pillow",
-    "einops",
-    "rotary-embedding-torch",
-    "ema-pytorch",
-    "numpy",
-    "matplotlib",
-    "scipy",
-    "omegaconf",
-    "wandb",
+    "torchao==0.11.0",
+    "datasets==3.6.0",
+    "pillow==11.0.0",
+    "einops==0.8.1",
+    "rotary-embedding-torch==0.8.6",
+    "ema-pytorch==0.7.7",
+    "matplotlib==3.10.3",
+    "scipy==1.15.3",
+    "omegaconf==2.3.0",
+    "wandb==0.19.11",
 ]
 
 [project.optional-dependencies]
