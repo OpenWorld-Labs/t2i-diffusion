@@ -8,7 +8,11 @@ Diffusion experiments
 ## Commands:
 Container for development:
 ```
-docker build --build-arg DEV_MODE=true -t t2i-diffusion:dev .
+docker build \
+  --build-arg DEV_MODE=true \
+  --build-arg USER_ID=$(id -u) \
+  --build-arg GROUP_ID=$(id -g) \
+  -t t2i-diffusion:dev .
 
 docker run --gpus all -it \
   -v "$PWD":/app \
@@ -20,7 +24,10 @@ docker run --gpus all -it \
 
 Container for running the model,
 ```
-docker build -t t2i-diffusion:latest .
+docker build \
+  --build-arg USER_ID=$(id -u) \
+  --build-arg GROUP_ID=$(id -g) \
+  -t t2i-diffusion:latest .
 
 docker run --gpus all -it \
   -v "$PWD":/app \
