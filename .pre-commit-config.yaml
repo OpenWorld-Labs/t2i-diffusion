@@ -8,14 +8,14 @@ repos:
     -   id: pretty-format-json
         args: ["--autofix", "--no-sort-keys"]
 
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.10
-    hooks:
-    -   id: ruff
-        types_or: [ python, pyi ]
-        args: [ --fix ]
-    -   id: ruff-format
-        types_or: [ python, pyi ]
+# -   repo: https://github.com/astral-sh/ruff-pre-commit
+#     rev: v0.11.10
+#     hooks:
+#     -   id: ruff
+#         types_or: [ python, pyi ]
+#         args: [ --fix ]
+#     -   id: ruff-format
+#         types_or: [ python, pyi ]
 
 # commented for now, too many type errors and baseline file is not working.
 #-   repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror

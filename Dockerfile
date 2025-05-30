@@ -19,9 +19,13 @@ RUN apt update && \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
+COPY . /app
 WORKDIR /app
 
-COPY pyproject.toml .
+# Create data and logs directories and set permissions
+RUN mkdir -p /app/data /app/logs && \
+    chown -R user:user /app/data /app/logs && \
+    chmod 755 /app/data /app/logs
 
 RUN conda init bash
 

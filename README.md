@@ -18,7 +18,7 @@ docker run --gpus all -it \
   -v data:/app/data \
   -v logs:/app/logs \
   -v ~/.ssh:/home/user/.ssh \
-  --name t2i-diffusion \
+  --name t2i-diffusion-latest \
   t2i-diffusion:latest
 ```
 
@@ -36,7 +36,7 @@ docker run --gpus all -it \
   -v data:/app/data \
   -v logs:/app/logs \
   -v ~/.ssh:/home/user/.ssh \
-  --name t2i-diffusion \
+  --name t2i-diffusion-dev \
   t2i-diffusion:dev
 ```
 

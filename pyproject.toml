@@ -33,3 +33,6 @@ typeCheckingMode = "basic"
 
 [tool.pytest.ini_options]
 addopts = "--jaxtyping-packages=diffusion,typeguard.typechecked"
+
+[tool.setuptools]
+packages = ["diffusion"]

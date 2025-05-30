@@ -1,8 +1,8 @@
-import argparse
-
 from diffusion.configs import Config
 from diffusion.trainers import get_trainer_cls
-from diffusion.utils.ddp import cleanup, setup
+from diffusion.utils.ddp import setup, cleanup
+
+import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -10,9 +10,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cfg = Config.from_yaml(args.config_path)
-
+    
     trainer = get_trainer_cls(cfg.train.trainer_id)(
-        cfg.train, cfg.wandb, cfg.model, *setup()
+        cfg.train,
+        cfg.wandb,
+        cfg.model,
+        *setup()
     )
     trainer.train()
     cleanup()
