@@ -1,0 +1,33 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-yaml
+    -   id: check-json
+    -   id: check-xml
+    -   id: pretty-format-json
+        args: ["--autofix", "--no-sort-keys"]
+
+# -   repo: https://github.com/astral-sh/ruff-pre-commit
+#     rev: v0.11.10
+#     hooks:
+#     -   id: ruff
+#         types_or: [ python, pyi ]
+#         args: [ --fix ]
+#     -   id: ruff-format
+#         types_or: [ python, pyi ]
+
+# commented for now, too many type errors and baseline file is not working.
+#-   repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
+#    rev: v1.13.0
+#    hooks:
+#    -   id: basedpyright
+
+-   repo: local
+    hooks:
+    -   id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        types: [python]
